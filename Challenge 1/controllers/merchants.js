@@ -54,13 +54,14 @@ const deleteMerchant = asyncWrapper(async (req, res) => {
 });
 
 const getNearestMerchants = asyncWrapper(async (req, res) => {
-    const { latitude, longitude, limit } = req.query;
+    const { latitude: latitude, longitude: longitude, limit: limit } = req.body;
     const merchants = await Merchants.find();
     const distances = merchants.map(merchant => {
         const distance = getDistance(
             {latitude, longitude},
             {latitude: merchant.latitude, longitude: merchant.longitude}
         );
+        console.log(merchant, distance);
         return { ...merchant, distance };
     });
     const sorted = distances.sort((a, b) => a.distance - b.distance);
