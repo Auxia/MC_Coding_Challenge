@@ -14,7 +14,7 @@ const getDistance = (point1, point2) => {
                 Math.sin(diffLongitude/2) * Math.sin(diffLongitude/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-    const d = R * c; // in metres
+    const d = (R * c) / 1000 ; // in kilometres
     return d;
 };
 
@@ -28,6 +28,7 @@ const getMerchant = asyncWrapper(async (req, res) => {
 });
 
 const createMerchant = asyncWrapper(async (req, res) => {
+    console.log(req.body);
     const merchant = await Merchants.create(req.body);
     res.status(201).json({ merchant });
 });
@@ -54,20 +55,20 @@ const deleteMerchant = asyncWrapper(async (req, res) => {
 });
 
 const getNearestMerchants = asyncWrapper(async (req, res) => {
-    const { latitude: latitude, longitude: longitude, limit: limit } = req.body;
+    const { latitude, longitude, limit } = req.query;
     const merchants = await Merchants.find();
     const distances = merchants.map(merchant => {
         const distance = getDistance(
             {latitude, longitude},
             {latitude: merchant.latitude, longitude: merchant.longitude}
         );
-        console.log(merchant, distance);
         return { ...merchant, distance };
     });
     const sorted = distances.sort((a, b) => a.distance - b.distance);
     const nearestMerchants = sorted.slice(0, limit);
     res.status(200).json({ nearestMerchants });
 });
+
 
 module.exports = {
     getNearestMerchants,
